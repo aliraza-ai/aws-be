@@ -1,0 +1,28 @@
+project-root/
+│
+├── src/
+│   ├── config/
+│   │   ├── dbConfig.ts    
+│   │   └── middleware.ts  
+│   │
+│   ├── models/
+│   │   └── User.ts        
+│   │   └── Contact.ts        
+│   │
+│   ├── routes/
+│   │   └── ContactRoutes.ts
+│   │
+│   ├── services/
+│   │   └── UserService.ts 
+│   │   └── ContactService.ts 
+│   │
+│   ├── controllers/
+│   │   └── UserController.ts 
+│   │   └── ContactController.ts 
+│   │
+│   ├── app.ts                
+│   │
+│
+├── tsconfig.json              
+├── .env                       
+└── package.json               
