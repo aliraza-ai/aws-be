@@ -1,22 +1,40 @@
-import { Model, DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/dbConfig";
 import User from "./User";
 
-class Subscription extends Model {
-  // Your Subscription model definition here
+interface TransactionAttributes {
+  id: number;
+  user_id: number;
+  name: string;
+  stripe_id: string;
+  plan_id: number;
+  created_at: Date;
+  updated_at: Date;
 }
 
-Subscription.init(
+class Transaction
+  extends Model<TransactionAttributes>
+  implements TransactionAttributes
+{
+  public id!: number;
+  public user_id!: number;
+  public name!: string;
+  public stripe_id!: string;
+  public plan_id!: number;
+  public created_at!: Date;
+  public updated_at!: Date;
+}
+
+Transaction.init(
   {
     id: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       autoIncrement: true,
+      primaryKey: true,
     },
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      unique: true,
       references: {
         model: User,
         key: "id",
@@ -28,27 +46,11 @@ Subscription.init(
     },
     stripe_id: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
-    stripe_status: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    stripe_price: {
+    plan_id: {
       type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    trial_ends_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    ends_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
+      allowNull: false,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -63,12 +65,11 @@ Subscription.init(
   },
   {
     sequelize,
-    modelName: "subscription",
+    tableName: "subscriptions",
     timestamps: false,
-    underscored: true,
-    indexes: [
-    ],
   }
 );
 
-export default Subscription;
+Transaction.belongsTo(User, { foreignKey: "user_id" });
+
+export default Transaction;

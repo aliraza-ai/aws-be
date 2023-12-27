@@ -8,8 +8,12 @@ class User extends Model {
   public password!: string;
   public reset_token!: string | null;
   public words_left!: number;
+  public chat_count!: number;
   public phone_number!: string | null;
   public address!: string | null;
+  public company_name!: string | null;
+  public company_position!: string | null;
+  public short_bio!: string | null;
 
   static associate(models: any) {
     // Define associations if any
@@ -48,11 +52,28 @@ User.init(
       allowNull: false,
       defaultValue: 3000,
     },
+    chat_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 10,
+    },
     phone_number: {
       type: DataTypes.STRING,
       allowNull: true,
     },
     address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    company_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    company_position: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    short_bio: {
       type: DataTypes.STRING,
       allowNull: true,
     },

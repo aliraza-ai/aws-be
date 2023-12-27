@@ -4,7 +4,7 @@ import userController from "./controllers/UserController";
 import { testDBConnection } from "./config/dbConfig";
 import contactRoutes from "./routes/contactRoutes";
 import OpenAIRoutes from "./routes/OpenAIRoutes";
-import subscriptionRoutes from "./routes/SubscriptionRoutes";
+import TransactionsRoutes from "./routes/TransactionRoutes";
 
 const app = express();
 
@@ -47,7 +47,7 @@ app.use("/sandbox/contacts", contactRoutes);
 app.use("/sandbox/intelliAI", OpenAIRoutes);
 
 // Define stripe routes
-app.use("/sandbox/subscriptions", subscriptionRoutes);
+app.use("/sandbox", TransactionsRoutes); 
 
 // Start the server
 app.listen(port, () => {

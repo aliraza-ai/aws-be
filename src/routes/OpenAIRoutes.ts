@@ -1,13 +1,14 @@
 import verifyToken from "../config/middleware";
 import express, { Request, Response } from "express";
 import axios from "axios";
+import userService from "../services/UserService";
 
 const router = express.Router();
 router.post(
   "/generate-prompt",
   verifyToken,
   async (req: Request, res: Response) => {
-    const { prompt } = req.body;
+    const { prompt, userId } = req.body;
 
     if (typeof prompt !== "string") {
       return res.status(400).json({ error: "Invalid prompt" });
@@ -35,11 +36,20 @@ router.post(
       );
 
       res.json({ data: response.data.choices[0].text });
+      const wordCount = countWords(response.data.choices[0].text);
+      await userService.updateUserwords_left(userId, wordCount);
     } catch (error: any) {
       const errorMessage = (error as Error).message || "Internal Server Error";
       res.status(500).json({ error: errorMessage });
     }
   }
 );
+
+//  words count function
+function countWords(chatMessage: string): number {
+  const wordsArray = chatMessage.trim().split(/\s+/);
+  const filteredWords = wordsArray.filter((word) => /[a-zA-Z0-9]+/.test(word));
+  return filteredWords.length;
+}
 
 export default router;

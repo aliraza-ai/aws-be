@@ -91,6 +91,9 @@ class UserService {
           "phone_number",
           "address",
           "stripe_id",
+          "company_name",
+          "company_position",
+          "short_bio",
         ],
       });
       return user;
@@ -112,7 +115,17 @@ class UserService {
       }
 
       // Update specific user details with provided data
-      const { id, name, email, password, phone_number, address } = updatedData;
+      const {
+        id,
+        name,
+        email,
+        password,
+        phone_number,
+        address,
+        company_name,
+        company_position,
+        short_bio,
+      } = updatedData;
 
       if (id !== undefined) {
         user.id = id;
@@ -131,6 +144,15 @@ class UserService {
       }
       if (address !== undefined) {
         user.address = address;
+      }
+      if (company_name !== undefined) {
+        user.company_name = company_name;
+      }
+      if (company_position !== undefined) {
+        user.company_position = company_position;
+      }
+      if (short_bio !== undefined) {
+        user.short_bio = short_bio;
       }
 
       await user.save();
@@ -216,6 +238,37 @@ class UserService {
       return true;
     } catch (error) {
       console.error("Error updating user words left:", error);
+      return false;
+    }
+  }
+
+  // Update Password
+  public async updatePassword(
+    userId: number,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<boolean> {
+    try {
+      // Find user by primary key (userId)
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return false; // User not found
+      }
+
+      // Check if old password matches the user's current password
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        return false; // Old password doesn't match
+      }
+
+      // Update user's password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+      await user.save();
+
+      return true; // Password update successful
+    } catch (error) {
+      console.error("Error updating password:", error);
       return false;
     }
   }

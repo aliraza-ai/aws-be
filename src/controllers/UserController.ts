@@ -5,6 +5,8 @@ import userService from "../services/UserService";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import verifyToken, { UserRequest } from "../config/middleware";
+import axios from "axios";
+import User from "../models/User";
 
 declare const __dirname: string;
 const bcrypt = require("bcrypt");
@@ -45,7 +47,16 @@ router.put(
   verifyToken,
   async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id, 10);
-    const { name, email, password, phone_number, address } = req.body;
+    const {
+      name,
+      email,
+      password,
+      phone_number,
+      address,
+      company_name,
+      company_position,
+      short_bio,
+    } = req.body;
 
     if (isNaN(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
@@ -64,6 +75,14 @@ router.put(
         return res.status(404).json({ message: "User not found" });
       }
 
+      // Check if the updated email is already in use by another user
+      if (email !== existingUser.email) {
+        const emailInUse = await userService.findUserByEmail(email);
+        if (emailInUse) {
+          return res.status(400).json({ message: "Email is already in use" });
+        }
+      }
+
       // Update user details
       const updatedUser = await userService.updateUser(userId, {
         name: name || existingUser.name,
@@ -71,13 +90,58 @@ router.put(
         password: password || existingUser.password,
         phone_number: phone_number || existingUser.phone_number,
         address: address || existingUser.address,
+        company_name: company_name || existingUser.company_name,
+        company_position: company_position || existingUser.company_position,
+        short_bio: short_bio || existingUser.short_bio,
       });
-
       return res
         .status(200)
         .json({ message: "User updated successfully", user: updatedUser });
     } catch (error) {
       return res.status(500).json({ message: "Failed to update user" });
+    }
+  }
+);
+
+// Change password
+router.put(
+  "/updatePassword/:id",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.id, 10);
+    const { oldPassword, newPassword } = req.body;
+
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    try {
+      // Check if newPassword exists and is not empty
+      if (!newPassword || newPassword.trim() === "") {
+        return res.status(400).json({ message: "New password is required" });
+      }
+
+      const existingUser = await userService.findUserById(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const passwordUpdated = await userService.updatePassword(
+        userId,
+        oldPassword,
+        newPassword
+      );
+
+      if (!passwordUpdated) {
+        return res.status(400).json({
+          message: "Failed to update password. Incorrect old password.",
+        });
+      }
+
+      return res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      return res.status(500).json({ message: "Failed to update password" });
     }
   }
 );
@@ -309,6 +373,7 @@ router.get(
       }
 
       const words_left = user.words_left;
+
       res.status(200).json({ words_left });
     } catch (error) {
       console.error("Error:", error);
@@ -318,11 +383,11 @@ router.get(
 );
 
 //  words count function
-function countWords(chatMessage: string): number {
-  const wordsArray = chatMessage.trim().split(/\s+/);
-  const filteredWords = wordsArray.filter((word) => /[a-zA-Z0-9]+/.test(word));
-  return filteredWords.length;
-}
+// function countWords(chatMessage: string): number {
+//   const wordsArray = chatMessage.trim().split(/\s+/);
+//   const filteredWords = wordsArray.filter((word) => /[a-zA-Z0-9]+/.test(word));
+//   return filteredWords.length;
+// }
 
 // update the words count
 router.post(
@@ -333,37 +398,84 @@ router.post(
     const chatMessage = req.body.message;
 
     try {
-      const user = req.user;
+      const user = await User.findByPk(userId);
 
       if (!user || user.id !== userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      if (user.words_left <= 0) {
-        return res.status(400).json({ message: "Out of words limit" });
+      if (user.chat_count <= 0) {
+        return res.status(400).json({ message: "Out of chats limit" });
       }
 
-      const chatWords = countWords(chatMessage);
+      const openaiApiEndpoint = "https://api.openai.com/v1/engines/text-davinci-003/completions";
 
-      const updated = await userService.updateUserwords_left(userId, chatWords);
+      const response = await axios.post(
+        openaiApiEndpoint,
+        {
+          prompt: chatMessage,
+          max_tokens: 500,
+          temperature: 0.9,
+          frequency_penalty: 0,
+          presence_penalty: 0.6,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Deduct chat for the chat
+      const chat_count = user.chat_count -= 1;
+      const updated = await user.save();
 
       if (!updated) {
         return res
           .status(500)
-          .json({ message: "Error updating words_left count" });
+          .json({ message: "Error updating chat_left count" });
       }
 
-      const updatedUser = await userService.findUserById(userId);
-      if (!updatedUser) {
-        return res
-          .status(500)
-          .json({ message: "Error fetching updated user details" });
-      }
+      // const updatedUser = await userService.findUserById(userId);
+      // if (!updatedUser) {
+      //   return res
+      //     .status(500)
+      //     .json({ message: "Error fetching updated user details" });
+      // }
 
       res.status(200).json({
-        message: "Chat created successfully",
-        words_left: updatedUser.words_left,
+        message: response.data.choices[0].text,
+        // chat_left: user.chat_count,
       });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+router.get(
+  "/get-chat-left/:userId",
+  verifyToken,
+  async (req: UserRequest, res: Response) => {
+    const userId = parseInt(req.params.userId, 10);
+
+    try {
+      const authenticatedUser = req.user;
+      // Check if the authenticated user is requesting their own words_left
+      if (!authenticatedUser || authenticatedUser.id !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await userService.findUserById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const chat_left = user.chat_count;
+
+      res.status(200).json({ chat_left });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ message: "Internal server error" });
