@@ -1,13 +1,9 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import User from "../models/User";
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 class UserService {
-  public async createUser(
-    name: string,
-    email: string,
-    password: string
-  ): Promise<User | null> {
+  async createUser(name, email, password) {
     try {
       // Validation checks
       if (!name || !email || !password) {
@@ -34,7 +30,7 @@ class UserService {
     }
   }
 
-  public async findUserByEmail(email: string): Promise<User | null> {
+  async findUserByEmail(email) {
     try {
       const user = await User.findOne({ where: { email } });
       return user;
@@ -44,26 +40,19 @@ class UserService {
     }
   }
 
-  public async comparePasswords(
-    inputPassword: string,
-    hashedPassword: string
-  ): Promise<boolean> {
+  async comparePasswords(inputPassword, hashedPassword) {
     return bcrypt.compare(inputPassword, hashedPassword);
   }
 
-  public async initiatePasswordReset(email: string): Promise<string | null> {
+  async initiatePasswordReset(email) {
     try {
       const user = await User.findOne({ where: { email } });
       if (!user) {
         return null; // User not found
       }
-      const reset_token = jwt.sign(
-        { email },
-        process.env.JWT_RESET_SECRET as string,
-        {
-          expiresIn: "1d",
-        }
-      );
+      const reset_token = jwt.sign({ email }, process.env.JWT_RESET_SECRET, {
+        expiresIn: "1d",
+      });
 
       // Store the reset token in the database or associate it with the user
       user.reset_token = reset_token;
@@ -76,8 +65,7 @@ class UserService {
     }
   }
 
-  // Get User
-  public async findUserDetailsById(userId: number): Promise<User | null> {
+  async findUserDetailsById(userId) {
     try {
       const user = await User.findOne({
         where: { id: userId },
@@ -103,11 +91,7 @@ class UserService {
     }
   }
 
-  // Update User
-  public async updateUser(
-    userId: number,
-    updatedData: Partial<User>
-  ): Promise<User | null> {
+  async updateUser(userId, updatedData) {
     try {
       const user = await User.findByPk(userId);
       if (!user) {
@@ -164,8 +148,7 @@ class UserService {
     }
   }
 
-  // Delete user
-  public async deleteUser(userId: number): Promise<boolean> {
+  async deleteUser(userId) {
     try {
       const user = await User.findByPk(userId);
       if (!user) {
@@ -180,11 +163,7 @@ class UserService {
     }
   }
 
-  public async resetPassword(
-    email: string,
-    reset_token: string,
-    newPassword: string
-  ): Promise<boolean> {
+  async resetPassword(email, reset_token, newPassword) {
     try {
       const user = await User.findOne({ where: { email, reset_token } });
       if (!user) {
@@ -206,7 +185,7 @@ class UserService {
     }
   }
 
-  public async findUserById(userId: number): Promise<User | null> {
+  async findUserById(userId) {
     try {
       const user = await User.findByPk(userId);
       return user;
@@ -216,10 +195,7 @@ class UserService {
     }
   }
 
-  public async updateUserwords_left(
-    userId: number,
-    wordsUsed: number
-  ): Promise<boolean> {
+  async updateUserwords_left(userId, wordsUsed) {
     try {
       const user = await User.findByPk(userId);
       if (!user) {
@@ -242,12 +218,7 @@ class UserService {
     }
   }
 
-  // Update Password
-  public async updatePassword(
-    userId: number,
-    oldPassword: string,
-    newPassword: string
-  ): Promise<boolean> {
+  async updatePassword(userId, oldPassword, newPassword) {
     try {
       // Find user by primary key (userId)
       const user = await User.findByPk(userId);
@@ -274,4 +245,4 @@ class UserService {
   }
 }
 
-export default new UserService();
+module.exports = new UserService();

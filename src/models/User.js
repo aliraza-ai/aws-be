@@ -1,23 +1,8 @@
-import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../config/dbConfig";
+const { DataTypes, Model } = require("sequelize");
+const { sequelize } = require("../config/dbConfig");
 
 class User extends Model {
-  public id!: number;
-  public name!: string;
-  public email!: string;
-  public password!: string;
-  public reset_token!: string | null;
-  public words_left!: number;
-  public chat_count!: number;
-  public phone_number!: string | null;
-  public address!: string | null;
-  public company_name!: string | null;
-  public company_position!: string | null;
-  public short_bio!: string | null;
-
-  static associate(models: any) {
-    // Define associations if any
-  }
+  // Define the model attributes
 }
 
 User.init(
@@ -50,12 +35,17 @@ User.init(
     words_left: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 3000,
+      defaultValue: 2000,
     },
     chat_count: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 10,
+    },
+    image_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 5,
     },
     phone_number: {
       type: DataTypes.STRING,
@@ -86,4 +76,4 @@ User.init(
   }
 );
 
-export default User;
+module.exports = User;

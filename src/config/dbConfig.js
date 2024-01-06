@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import * as dotenv from "dotenv";
+const { Sequelize } = require("sequelize");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
@@ -7,7 +7,7 @@ dotenv.config();
 const sequelize = new Sequelize({
   database: process.env.DB_NAME || "intelliwriter_latest", //intelliwriter
   username: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",//intelliwriter1122
+  password: process.env.DB_PASS || "", //intelliwriter1122
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "3306", 10),
   dialect: "mysql",
@@ -22,4 +22,4 @@ async function testDBConnection() {
   }
 }
 
-export { sequelize, testDBConnection };
+module.exports = { sequelize, testDBConnection };

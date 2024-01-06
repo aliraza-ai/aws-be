@@ -1,6 +1,6 @@
-import express from "express";
-import TransactionController from "../controllers/TransactionController";
-import verifyToken from "../config/middleware";
+const express = require("express");
+const TransactionController = require("../controllers/TransactionController");
+const verifyToken = require("../config/middleware");
 
 const router = express.Router();
 
@@ -39,4 +39,4 @@ router.get(
   TransactionController.getTransactionsByUserId
 );
 
-export default router;
+module.exports = router;

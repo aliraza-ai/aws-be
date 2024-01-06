@@ -1,17 +1,13 @@
-import nodemailer, { TransportOptions } from "nodemailer";
-import dotenv from "dotenv";
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
 
-function isError(err: any): err is Error {
+dotenv.config();
+
+function isError(err) {
   return err instanceof Error;
 }
 
-const sendEmail = async (
-  email: string,
-  subject: string,
-  html: string,
-  cc?: string | string[],
-  bcc?: string | string[]
-): Promise<boolean> => {
+const sendEmail = async (email, subject, html, cc, bcc) => {
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.HOST,
@@ -21,9 +17,9 @@ const sendEmail = async (
         user: process.env.EMAIL_USERNAME,
         pass: process.env.EMAIL_PASSWORD,
       },
-    } as TransportOptions);
+    });
 
-    const data: nodemailer.SendMailOptions = {
+    const data = {
       from: `Reset Password <noreply@intelliwriter.io>`,
       to: email,
       subject: subject,
@@ -35,7 +31,7 @@ const sendEmail = async (
     await transporter.sendMail(data);
 
     return true;
-  } catch (error: any) {
+  } catch (error) {
     if (isError(error)) {
       console.error("Error sending email:", error.message);
     } else {
@@ -45,4 +41,4 @@ const sendEmail = async (
   }
 };
 
-export default sendEmail;
+module.exports = sendEmail;

@@ -2,27 +2,27 @@ project-root/
 │
 ├── src/
 │   ├── config/
-│   │   ├── dbConfig.ts    
-│   │   └── middleware.ts  
+│   │   ├── dbConfig.js    
+│   │   └── middleware.js  
 │   │
 │   ├── models/
-│   │   └── User.ts        
-│   │   └── Contact.ts        
+│   │   └── User.js        
+│   │   └── Contact.js        
 │   │
 │   ├── routes/
-│   │   └── ContactRoutes.ts
+│   │   └── ContactRoutes.js
 │   │
 │   ├── services/
-│   │   └── UserService.ts 
-│   │   └── ContactService.ts 
+│   │   └── UserService.js 
+│   │   └── Contacjservice.js 
 │   │
 │   ├── controllers/
-│   │   └── UserController.ts 
-│   │   └── ContactController.ts 
+│   │   └── UserController.js 
+│   │   └── ContactController.js 
 │   │
-│   ├── app.ts                
+│   ├── app.js                
 │   │
 │
-├── tsconfig.json              
+├── jsconfig.json              
 ├── .env                       
 └── package.json               

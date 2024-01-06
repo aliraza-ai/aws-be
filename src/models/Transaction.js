@@ -1,29 +1,8 @@
-import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../config/dbConfig";
-import User from "./User";
+const { DataTypes, Model } = require("sequelize");
+const { sequelize } = require("../config/dbConfig");
+const User = require("./User");
 
-interface TransactionAttributes {
-  id: number;
-  user_id: number;
-  name: string;
-  stripe_id: string;
-  plan_id: number;
-  created_at: Date;
-  updated_at: Date;
-}
-
-class Transaction
-  extends Model<TransactionAttributes>
-  implements TransactionAttributes
-{
-  public id!: number;
-  public user_id!: number;
-  public name!: string;
-  public stripe_id!: string;
-  public plan_id!: number;
-  public created_at!: Date;
-  public updated_at!: Date;
-}
+class Transaction extends Model {}
 
 Transaction.init(
   {
@@ -72,4 +51,4 @@ Transaction.init(
 
 Transaction.belongsTo(User, { foreignKey: "user_id" });
 
-export default Transaction;
+module.exports = Transaction;

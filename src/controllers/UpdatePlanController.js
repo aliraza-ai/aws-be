@@ -1,8 +1,7 @@
-import { Request, Response } from "express";
-import UpdatePlanService from "../services/UpdatePlanService";
+const UpdatePlanService = require("../services/UpdatePlanService");
 
 class UpdatePlanController {
-  static async updatePlan(req: Request, res: Response): Promise<void> {
+  static async updatePlan(req, res) {
     try {
       const { userId, wordsLeft, chatCount } = req.body;
 
@@ -23,4 +22,4 @@ class UpdatePlanController {
   }
 }
 
-export default UpdatePlanController;
+module.exports = UpdatePlanController;

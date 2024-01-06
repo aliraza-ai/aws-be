@@ -1,12 +1,10 @@
-import { Request, Response } from "express";
-import TransactionService from "../services/TransactionService";
+const TransactionService = require("../services/TransactionService");
 
 class TransactionController {
-  static async createTransaction(req: Request, res: Response): Promise<void> {
+  static async createTransaction(req, res) {
     try {
       const { user_id, name, id, plan_id } = req.body;
 
-      // Check if the id already exists
       const existingTransaction =
         await TransactionService.getTransactionByStripeId(id);
       if (existingTransaction) {
@@ -37,14 +35,9 @@ class TransactionController {
     }
   }
 
-  // Get the transactions
-  static async getTransactionByStripeId(
-    req: Request,
-    res: Response
-  ): Promise<void> {
+  static async getTransactionByStripeId(req, res) {
     try {
       const { id } = req.params;
-
       const transaction = await TransactionService.getTransactionByStripeId(id);
 
       if (transaction) {
@@ -57,11 +50,7 @@ class TransactionController {
     }
   }
 
-  // Get transaction by user_id
-  static async getTransactionsByUserId(
-    req: Request,
-    res: Response
-  ): Promise<void> {
+  static async getTransactionsByUserId(req, res) {
     try {
       const { user_id } = req.params;
       const userIdAsNumber = parseInt(user_id, 10);
@@ -82,17 +71,11 @@ class TransactionController {
     }
   }
 
-  //   Update the transactions
-  static async updateTransaction(req: Request, res: Response): Promise<void> {
+  static async updateTransaction(req, res) {
     try {
       const { id } = req.params;
       const { user_id, name, plan_id } = req.body;
-
-      const transactionData = {
-        user_id,
-        name,
-        plan_id,
-      };
+      const transactionData = { user_id, name, plan_id };
 
       const updatedTransaction = await TransactionService.updateTransaction(
         id,
@@ -112,11 +95,9 @@ class TransactionController {
     }
   }
 
-  //   Delete transaction
-  static async deleteTransaction(req: Request, res: Response): Promise<void> {
+  static async deleteTransaction(req, res) {
     try {
       const { id } = req.params;
-
       const deleted = await TransactionService.deleteTransaction(id);
 
       if (deleted) {
@@ -130,4 +111,4 @@ class TransactionController {
   }
 }
 
-export default TransactionController;
+module.exports = TransactionController;

@@ -1,11 +1,7 @@
-import User from "../models/User";
+const User = require("../models/User");
 
 class UpdatePlanService {
-  static async updatePlan(
-    userId: number,
-    wordsLeft: number,
-    chatCount: number
-  ): Promise<boolean> {
+  static async updatePlan(userId, wordsLeft, chatCount) {
     try {
       const [updatedRows] = await User.update(
         { words_left: wordsLeft, chat_count: chatCount },
@@ -21,4 +17,4 @@ class UpdatePlanService {
   }
 }
 
-export default UpdatePlanService;
+module.exports = UpdatePlanService;

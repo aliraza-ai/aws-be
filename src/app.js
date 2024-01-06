@@ -1,10 +1,10 @@
-import express, { Request, Response } from "express";
-import cors, { CorsOptions } from "cors";
-import userController from "./controllers/UserController";
-import { testDBConnection } from "./config/dbConfig";
-import contactRoutes from "./routes/contactRoutes";
-import OpenAIRoutes from "./routes/OpenAIRoutes";
-import TransactionsRoutes from "./routes/TransactionRoutes";
+const express = require("express");
+const cors = require("cors");
+const userController = require("./controllers/UserController");
+const { testDBConnection } = require("./config/dbConfig");
+const contactRoutes = require("./routes/contactRoutes");
+const OpenAIRoutes = require("./routes/OpenAIRoutes");
+const TransactionsRoutes = require("./routes/TransactionRoutes");
 
 const app = express();
 
@@ -14,11 +14,8 @@ const port = process.env.PORT || 4001;
 
 // Configure CORS based on environment variable
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
-const corsOptions: CorsOptions = {
-  origin: function (
-    origin: string | undefined,
-    callback: (error: Error | null, allowed?: boolean) => void
-  ) {
+const corsOptions = {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -33,7 +30,7 @@ app.use(cors(corsOptions));
 testDBConnection();
 
 // Define a simple route
-app.get("/sandbox", (req: Request, res: Response) => {
+app.get("/sandbox", (req, res) => {
   res.send("Hello, welcome to your Express server!");
 });
 
@@ -47,7 +44,7 @@ app.use("/sandbox/contacts", contactRoutes);
 app.use("/sandbox/intelliAI", OpenAIRoutes);
 
 // Define stripe routes
-app.use("/sandbox", TransactionsRoutes); 
+app.use("/sandbox", TransactionsRoutes);
 
 // Start the server
 app.listen(port, () => {

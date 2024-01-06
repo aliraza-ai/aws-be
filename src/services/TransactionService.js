@@ -1,9 +1,7 @@
-import Transaction from "../models/Transaction";
+const Transaction = require("../models/Transaction");
 
 class TransactionService {
-  static async createTransaction(
-    transactionData: any
-  ): Promise<Transaction | null> {
+  static async createTransaction(transactionData) {
     try {
       const createdTransaction = await Transaction.create(transactionData);
       return createdTransaction;
@@ -13,9 +11,7 @@ class TransactionService {
     }
   }
 
-  static async getTransactionByStripeId(
-    id: string
-  ): Promise<Transaction | null> {
+  static async getTransactionByStripeId(id) {
     try {
       const transaction = await Transaction.findOne({ where: { id } });
       return transaction;
@@ -25,10 +21,7 @@ class TransactionService {
     }
   }
 
-  static async updateTransaction(
-    id: string,
-    updatedData: Partial<Transaction>
-  ): Promise<boolean> {
+  static async updateTransaction(id, updatedData) {
     try {
       const [affectedCount] = await Transaction.update(updatedData, {
         where: { id },
@@ -40,7 +33,7 @@ class TransactionService {
     }
   }
 
-  static async deleteTransaction(id: string): Promise<boolean> {
+  static async deleteTransaction(id) {
     try {
       const deletedRows = await Transaction.destroy({ where: { id } });
       return deletedRows > 0;
@@ -50,9 +43,7 @@ class TransactionService {
     }
   }
 
-  static async getTransactionsByUserId(
-    user_id: number
-  ): Promise<Transaction[]> {
+  static async getTransactionsByUserId(user_id) {
     try {
       const transactions = await Transaction.findAll({ where: { user_id } });
       return transactions;
@@ -63,4 +54,4 @@ class TransactionService {
   }
 }
 
-export default TransactionService;
+module.exports = TransactionService;
