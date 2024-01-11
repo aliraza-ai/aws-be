@@ -243,6 +243,30 @@ class UserService {
       return false;
     }
   }
+
+  async updateUserInformation(
+    email,
+    wordsLeft,
+    chatCount,
+    imageCount,
+    planName
+  ) {
+    try {
+      const updatedUser = await User.update(
+        {
+          words_left: wordsLeft,
+          chat_count: chatCount,
+          image_count: imageCount,
+          plan_name: planName,
+        },
+        { where: { email } }
+      );
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating user information:", error);
+      throw new Error("Error updating user information");
+    }
+  }
 }
 
 module.exports = new UserService();

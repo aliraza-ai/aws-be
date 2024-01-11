@@ -5,6 +5,9 @@ const { testDBConnection } = require("./config/dbConfig");
 const contactRoutes = require("./routes/contactRoutes");
 const OpenAIRoutes = require("./routes/OpenAIRoutes");
 const TransactionsRoutes = require("./routes/TransactionRoutes");
+const planRoutes = require("./routes/PlanRoutes");
+const bodyParser = require("body-parser");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 
@@ -25,6 +28,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(bodyParser.raw({ type: "application/json" }));
 
 // Check database connection
 testDBConnection();
@@ -45,6 +49,12 @@ app.use("/sandbox/intelliAI", OpenAIRoutes);
 
 // Define stripe routes
 app.use("/sandbox", TransactionsRoutes);
+
+// Define plans routes
+app.use("/sandbox/plans", planRoutes);
+
+// Define webhook routes
+const endpointSecret = process.env.endpointSecret;
 
 // Start the server
 app.listen(port, () => {

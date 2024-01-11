@@ -15,11 +15,11 @@ router.post("/generate-prompt", verifyToken, async (req, res) => {
   }
 
   if (user.words_left <= 0) {
-    return res.status(500).json({ message: "Out of Word limit!" });
+    return res.status(400).json({ error: "Out of Word limit!" });
   }
 
   const openaiApiEndpoint =
-    "https://api.openai.com/v1/engines/text-davinci-003/completions";
+    "https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions";
 
   try {
     const response = await axios.post(

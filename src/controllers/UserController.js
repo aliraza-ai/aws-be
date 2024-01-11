@@ -428,9 +428,10 @@ router.post("/:userId/update-image-count", verifyToken, async (req, res) => {
       userId,
       newImageCount
     );
-    return res
-      .status(200)
-      .json({ message: "Image count updated successfully", images_left: updatedUser.image_count });
+    return res.status(200).json({
+      message: "Image count updated successfully",
+      images_left: updatedUser.image_count,
+    });
   } catch (error) {
     console.error("Error updating image count:", error);
     return res.status(500).json({ message: "Failed to update image count" });
@@ -458,5 +459,93 @@ router.get("/:userId/image-count", verifyToken, async (req, res) => {
     return res.status(500).json({ message: "Failed to fetch image count" });
   }
 });
+
+// webhook
+router.post(
+  "/webhook",
+  express.json({ type: "application/json" }),
+  async (req, res) => {
+    try {
+      const event = req.body;
+
+      switch (event.type) {
+        case "checkout.session.async_payment_failed":
+          handleAsyncPaymentFailed();
+          break;
+
+        case "payment_method.attached":
+          handlePaymentMethodAttached();
+          break;
+
+        case "checkout.session.completed":
+          await handleCheckoutSessionCompleted(event.data.object);
+          break;
+
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+          break;
+      }
+
+      // Return a response to acknowledge receipt of the event
+      res.json({ received: true });
+    } catch (error) {
+      console.error("Error during webhook processing:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+async function handleAsyncPaymentFailed() {
+  // Handle async payment failed event
+}
+
+async function handlePaymentMethodAttached() {
+  // Handle payment method attached event
+}
+
+async function handleCheckoutSessionCompleted(checkoutSession) {
+  const customerEmail = checkoutSession.customer_details.email;
+
+  console.log(`Customer email: ${customerEmail}`);
+
+  if (!isValidEmailFormat(customerEmail)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  const existingUser = await userService.findUserByEmail(customerEmail);
+  if (!existingUser) {
+    return res
+      .status(400)
+      .json({ error: "User with this email doesn't exist" });
+  }
+
+  const updatedUser = await updateUserInfoFromPlan(existingUser, selectedPlan);
+
+  if (updatedUser) {
+    console.log(`User information updated successfully for ${customerEmail}`);
+  } else {
+    console.error(`Failed to update user information for ${customerEmail}`);
+  }
+}
+
+function isValidEmailFormat(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+async function updateUserInfoFromPlan(user, plan) {
+  if (plan) {
+    return userService.updateUserInformation(
+      user.email,
+      plan.words_left,
+      plan.chat_count,
+      plan.image_count,
+      plan.plan_name
+    );
+  } else {
+    console.error(`Selected plan not found for ${user.email}`);
+    return null;
+  }
+}
 
 module.exports = router;
