@@ -354,7 +354,7 @@ router.post("/create-chat/:userId", verifyToken, async (req, res) => {
     }
 
     const openaiApiEndpoint =
-      "https://api.openai.com/v1/engines/text-davinci-003/completions";
+      "https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions";
 
     const response = await axios.post(
       openaiApiEndpoint,
