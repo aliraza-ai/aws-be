@@ -4,6 +4,8 @@ const userController = require("./controllers/UserController");
 const { testDBConnection } = require("./config/dbConfig");
 const contactRoutes = require("./routes/contactRoutes");
 const OpenAIRoutes = require("./routes/OpenAIRoutes");
+const VoiceAPIRoutes = require("./routes/VoiceAPIRoutes");
+
 const TransactionsRoutes = require("./routes/TransactionRoutes");
 const planRoutes = require("./routes/PlanRoutes");
 const bodyParser = require("body-parser");
@@ -15,19 +17,9 @@ app.use(express.json());
 
 const port = process.env.PORT || 4001;
 
-// Configure CORS based on environment variable
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-};
+// Configure CORS
+app.use(cors());
 
-app.use(cors(corsOptions));
 app.use(bodyParser.raw({ type: "application/json" }));
 
 // Check database connection
@@ -47,11 +39,14 @@ app.use("/sandbox/contacts", contactRoutes);
 // Define openAi routes
 app.use("/sandbox/intelliAI", OpenAIRoutes);
 
+app.use("/sandbox/intelli-apis", VoiceAPIRoutes);
+
 // Define stripe routes
 app.use("/sandbox", TransactionsRoutes);
 
 // Define plans routes
 app.use("/sandbox/plans", planRoutes);
+
 
 // Define webhook routes
 const endpointSecret = process.env.endpointSecret;

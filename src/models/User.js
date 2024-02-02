@@ -47,6 +47,11 @@ User.init(
       allowNull: false,
       defaultValue: 5,
     },
+    plan_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "Basic Pack",
+    },
     phone_number: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -64,6 +69,10 @@ User.init(
       allowNull: true,
     },
     short_bio: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    plan_name: {
       type: DataTypes.STRING,
       allowNull: true,
     },

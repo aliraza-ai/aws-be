@@ -460,6 +460,28 @@ router.get("/:userId/image-count", verifyToken, async (req, res) => {
   }
 });
 
+// get plans
+router.get("/plans/:userId", verifyToken, async (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+
+  if (isNaN(userId)) {
+    return res.status(400).json({ message: "Invalid user ID" });
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ plans: user.plan_name || 0 });
+  } catch (error) {
+    console.error("Error fetching image count:", error);
+    return res.status(500).json({ message: "Failed to fetch image count" });
+  }
+});
+
 // webhook
 router.post(
   "/webhook",
