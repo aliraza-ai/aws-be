@@ -5,10 +5,14 @@ dotenv.config();
 
 // Database configuration
 const sequelize = new Sequelize({
-  database: process.env.DB_NAME || "intelliwriter_latest", //intelliwriter
+  database: process.env.DB_NAME || "intelliwriter_latest",
   username: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "",
   host: process.env.DB_HOST || "localhost",
+  // database: process.env.DB_NAME || "intelliwriter",
+  // username: process.env.DB_USER,
+  // password: process.env.DB_PASS,
+  // host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT || "3306", 10),
   dialect: "mysql",
 });

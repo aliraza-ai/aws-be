@@ -11,12 +11,33 @@ const User = require("../models/User");
 
 const bcrypt = require("bcrypt");
 const fs = require("fs");
+const Verifier = require("email-verifier");
+const EmailValidation = require("fakemail-guard");
+const ev = new EmailValidation();
 
 dotenv.config();
 
 const router = express.Router();
 
-// register new user
+async function verifyEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { formatCheck: false }; // Invalid format
+  }
+
+  try {
+    const result = ev.check(email);
+    return { formatCheck: true, fakeEmail: !result.valid };
+  } catch (error) {
+    console.error("Error checking email with FakeMailGuard:", error);
+  }
+}
+
+// Whitelist Gmail domain
+ev.whitelist("gmail.com");
+ev.whitelist("outlook.com");
+
+// Updated register endpoint with email verification check
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -32,8 +53,24 @@ router.post("/register", async (req, res) => {
     return res.status(400).json({ message: "Email already exists" });
   }
 
-  // Create the user if email is valid and doesn't exist
+  // Verify email authenticity
+  try {
+    const emailVerificationResult = await verifyEmail(email);
+    console.log(emailVerificationResult);
+    if (
+      !emailVerificationResult.formatCheck ||
+      emailVerificationResult.fakeEmail
+    ) {
+      return res.status(400).json({ message: "Fake email detected" });
+    }
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    return res.status(500).json({ message: "Failed to verify email" });
+  }
+
+  // Create the user with email verification status set to false
   const newUser = await userService.createUser(name, email, password);
+
   if (newUser) {
     return res.status(201).json({ message: "User created successfully" });
   } else {

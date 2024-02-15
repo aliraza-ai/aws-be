@@ -3,12 +3,19 @@ const express = require("express");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const UserService = require("../services/UserService");
+const User = require("../models/User");
 
 const router = express.Router();
-const tempAudioFilePath = path.join(__dirname, "..", "temp_audio.mp3");
+const tempAudioFilePath = path.join(__dirname, "..", "templates", "temp_audio.mp3");
 
 router.post("/generate-voice", verifyToken, async (req, res) => {
   const { prompt, voice, userId } = req.body;
+  const user = await User.findByPk(userId);
+
+  // if (user.voice_count <= 0) {
+  //   return res.status(400).json({ error: "Voice over out of limit!" });
+  // }
   const endpoint = "https://api.openai.com/v1/audio/speech";
   try {
     const response = await axios.post(
@@ -27,13 +34,9 @@ router.post("/generate-voice", verifyToken, async (req, res) => {
       }
     );
 
-    // Send the audio data directly to the client
-    res.writeHead(200, {
-      "Content-Type": "audio/mpeg",
-      "Content-Length": response.data.length
-    });
-    res.end(response.data);
-
+    fs.writeFileSync(tempAudioFilePath, response.data);
+    res.sendFile(tempAudioFilePath);
+    await UserService.updateUserVoice_left(userId);
   } catch (error) {
     res.status(500).json({ error: "Failed to generate audio file" });
   }

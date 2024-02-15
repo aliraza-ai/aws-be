@@ -45,11 +45,16 @@ User.init(
     image_count: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 5,
+      defaultValue: 0,
+    },
+    voice_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: Infinity,
     },
     plan_name: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       defaultValue: "Basic Pack",
     },
     phone_number: {
@@ -69,10 +74,6 @@ User.init(
       allowNull: true,
     },
     short_bio: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    plan_name: {
       type: DataTypes.STRING,
       allowNull: true,
     },

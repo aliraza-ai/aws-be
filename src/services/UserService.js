@@ -218,6 +218,30 @@ class UserService {
     }
   }
 
+  async updateUserVoice_left(userId) {
+    try {
+      const existingUser = await User.findByPk(userId);
+
+      if (!existingUser) {
+        throw new Error("User not found");
+      }
+
+      const currentVoice = existingUser.voice_count || 0;
+
+      if (currentVoice <= 0) {
+        throw new Error("Insufficient voice count");
+      }
+
+      existingUser.voice_count -= 1; // Decrease the image count
+      await existingUser.save();
+
+      return existingUser;
+    } catch (error) {
+      console.error("Error updating user voices left:", error);
+      return false;
+    }
+  }
+
   async updatePassword(userId, oldPassword, newPassword) {
     try {
       // Find user by primary key (userId)

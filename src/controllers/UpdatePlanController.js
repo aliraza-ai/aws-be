@@ -3,12 +3,14 @@ const UpdatePlanService = require("../services/UpdatePlanService");
 class UpdatePlanController {
   static async updatePlan(req, res) {
     try {
-      const { userId, wordsLeft, chatCount } = req.body;
+      const { userId, planName, words, chats, images } = req.body;
 
       const updated = await UpdatePlanService.updatePlan(
         userId,
-        wordsLeft,
-        chatCount
+        planName,
+        words,
+        chats,
+        images
       );
 
       if (updated) {

@@ -15,7 +15,7 @@ const app = express();
 
 app.use(express.json());
 
-const port = process.env.PORT || 4001;
+const port = process.env.PORT || 7000;
 
 // Configure CORS
 app.use(cors());
@@ -46,7 +46,6 @@ app.use("/sandbox", TransactionsRoutes);
 
 // Define plans routes
 app.use("/sandbox/plans", planRoutes);
-
 
 // Define webhook routes
 const endpointSecret = process.env.endpointSecret;
